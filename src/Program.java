@@ -14,26 +14,26 @@ public class Program {
 			String linha = leitor.readLine();
 			int iteracao = 0;
 
-			ArrayList<EntidadeFilme> listaFilmes = new ArrayList<>();
+			
 
-			while(linha != null && !linha.isEmpty() && iteracao <= 40) {
-				linha = leitor.readLine();
-				String[] propriedadesObjeto = linha.split(",");
-				EntidadeFilme filme = mapearObjeto(propriedadesObjeto);
-				if (filme != null)
-					arqReader.setData(filme);
-				System.out.println("buscando em: "+(arqReader.getTamHead() + (arqReader.getTamReg() * iteracao)));
-				EntidadeFilme filme2 = arqReader.getData(iteracao);
-				if (filme2 != null)
-					listaFilmes.add(filme2);
-				iteracao++;
-				System.out.println(iteracao);
+			if(arqReader.getNumReg() == 0) {
+				while(linha != null && !linha.isEmpty() && iteracao <= 40) {
+					linha = leitor.readLine();
+					String[] propriedadesObjeto = linha.split(",");
+					EntidadeFilme filme = mapearObjeto(propriedadesObjeto);
+					if (filme != null)
+						arqReader.setData(filme);
+					iteracao++;
+					System.out.println(iteracao);
+				}	
 			}
+			
+			 ArrayList<EntidadeFilme> listaFilmes = LerDadosFilmesImdb(arqReader);
 			
 			leitor.close();
 			arqReader.closeFile("src/dados_filmes.bin");
-			for (EntidadeFilme filme : listaFilmes) {
-				System.out.println(filme.getMovieTitle());
+			for (EntidadeFilme filmeImdb : listaFilmes) {
+				System.out.println(filmeImdb.getMovieTitle());
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -91,4 +91,17 @@ public class Program {
 		return (prop != null && !prop.isEmpty()) ? prop.trim() : prop;
 	}
 
+	private static ArrayList<EntidadeFilme> LerDadosFilmesImdb(ArquivoDeDadosDeAcessoAleatorioFilmes arqReader) {
+		int i =0;
+		EntidadeFilme filme;
+		ArrayList<EntidadeFilme> listaFilmes = new ArrayList<>();
+		do {
+			filme = arqReader.getData(i);
+			if (filme != null)
+				listaFilmes.add(filme);
+			i++;
+		} while(filme != null);
+		
+		return listaFilmes;
+	}
 }
