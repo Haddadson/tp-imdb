@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class Program {
 
@@ -42,17 +43,24 @@ public class Program {
 
 			ArrayList<String> stopWords = ObterListaStopWords();
 
-			ArrayList<String> palavrasIndiceInvertido = ObterPalavrasIndiceInvertido(listaFilmes, stopWords);
+			ArrayList<EntidadePlotKeyWord> palavrasIndiceInvertido = ObterPalavrasIndiceInvertido(listaFilmes, stopWords);
 			
 			ArquivoDeDadosDeAcessoAleatorioIndiceInvertido arqReaderIndice = new ArquivoDeDadosDeAcessoAleatorioIndiceInvertido();
 			arqReaderIndice.openFile("src/lista_palavras_indice.bin");
+			arqReaderIndice.setQtdPalavras(palavrasIndiceInvertido.size());
 			
-			for(String palavra : palavrasIndiceInvertido) {
-				arqReaderIndice.setData(palavra);
+			for(EntidadePlotKeyWord plotKeyWord : palavrasIndiceInvertido) {
+				arqReaderIndice.setData(plotKeyWord);
 			}
+			
+			ArrayList<EntidadePlotKeyWord> teste = LerDadosIndiceInvertido(arqReaderIndice);
 			
 			for (EntidadeFilme filmeImdb : listaFilmes) {
 				System.out.println(filmeImdb.getMovieTitle());
+			}
+			
+			for(EntidadePlotKeyWord plot : teste) {
+				System.out.println(plot.getPalavra());
 			}
 
 		} catch (Exception ex) {
@@ -143,18 +151,53 @@ public class Program {
 		return resultado;
 	}
 
-	private static ArrayList<String> ObterPalavrasIndiceInvertido(ArrayList<EntidadeFilme> listaFilmes,
+	private static ArrayList<EntidadePlotKeyWord> ObterPalavrasIndiceInvertido(ArrayList<EntidadeFilme> listaFilmes,
 			ArrayList<String> stopWords) {
-		ArrayList<String> listaPalavras = new ArrayList<String>();
 		
+		ArrayList<EntidadePlotKeyWord> listaPalavras = new ArrayList<EntidadePlotKeyWord>();
+		EntidadePlotKeyWord plotKeyWord;
 		for (EntidadeFilme filme : listaFilmes) {
-			List<String> plotKeyWords = Arrays.asList(filme.getPlotKeywords().split("|"));
+			String[] plotKeyWordsString = filme.getPlotKeywords().split(Pattern.quote("|"));
+			List<String> plotKeyWords = Arrays.asList(plotKeyWordsString);
 			for (String palavra : plotKeyWords) {
-				if(!stopWords.contains(palavra) && !listaPalavras.contains(palavra))
-					listaPalavras.add(palavra);
+				if(!stopWords.contains(palavra)) {
+					if(!contemPalavra(listaPalavras, palavra)) {
+						plotKeyWord = new EntidadePlotKeyWord();
+						plotKeyWord.setPalavra(palavra);
+						plotKeyWord.adicionarRegistroEmQuePalavraApareceu(filme.getNumRegistro());
+						listaPalavras.add(plotKeyWord);
+					}
+					else {
+						listaPalavras.stream().filter(o -> o.getPalavra().equals(palavra)).forEach(
+				            o -> {
+				               o.getRegistrosEmQueAparece().add(filme.getNumRegistro());
+				            }
+					    );
+					}
+				}
+					
 			}
 		}
-		Collections.sort(listaPalavras);
+		Collections.sort(listaPalavras, new ComparadorEntidadePlotKeyWord());
 		return listaPalavras;
+	}
+	
+	private static boolean contemPalavra(ArrayList<EntidadePlotKeyWord> listaPesquisa, String palavra){
+		ArrayList<EntidadePlotKeyWord> lista = new ArrayList<EntidadePlotKeyWord>(listaPesquisa);
+	    return lista.stream().filter(o -> o.getPalavra().equals(palavra)).findFirst().isPresent();
+	}
+	
+	private static ArrayList<EntidadePlotKeyWord> LerDadosIndiceInvertido(ArquivoDeDadosDeAcessoAleatorioIndiceInvertido arqReader) {
+		int i = 0;
+		EntidadePlotKeyWord plotKeyWord;
+		ArrayList<EntidadePlotKeyWord> indiceInvertido = new ArrayList<>();
+		do {
+			plotKeyWord = arqReader.getData(i);
+			if (plotKeyWord != null)
+				indiceInvertido.add(plotKeyWord);
+			i++;
+		} while (plotKeyWord != null);
+
+		return indiceInvertido;
 	}
 }

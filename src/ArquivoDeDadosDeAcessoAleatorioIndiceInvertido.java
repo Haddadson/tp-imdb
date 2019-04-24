@@ -10,12 +10,15 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 	private int tamReg;
 	private int tamHead;
 	private static final int STRING_MAX_TAM = 100;
-
+	private int qtdPalavras;
+	private int ultimoReg;
+	
 	public ArquivoDeDadosDeAcessoAleatorioIndiceInvertido() {
 		this.file = null;
 		this.numReg = -1; // número de registro (-1: não há registros)
-		this.tamReg = STRING_MAX_TAM;
+		this.tamReg = STRING_MAX_TAM + ((Integer.SIZE / 8) * 200);
 		this.tamHead = 4;
+		this.ultimoReg = this.qtdPalavras = 0;
 	}
 
 	public int getTamReg() {
@@ -24,6 +27,14 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 
 	public int getTamHead() {
 		return tamHead;
+	}
+	
+	public int getQtdPalavras() {
+		return qtdPalavras;
+	}
+
+	public void setQtdPalavras(int qtdPalavras) {
+		this.qtdPalavras = qtdPalavras;
 	}
 
 	public void openFile(String path) {
@@ -74,14 +85,21 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 		return numReg;
 	}
 
-	public void setData(String palavra) {
+	public void setData(EntidadePlotKeyWord plotKeyWord) {
 		int pos = this.tamHead + (this.numReg * this.tamReg);
 
 		// calcula ponteiro para a primeira posição vazia do arquivo
 		try {
 			file.seek(pos);
-			file.writeUTF(palavra);
+			file.writeUTF(plotKeyWord.getPalavra());
 			file.seek(pos + STRING_MAX_TAM);
+			for(int i = 0; i <= 200; i++) {
+				if(i < plotKeyWord.getRegistrosEmQueAparece().size()) 
+					file.write(plotKeyWord.getRegistrosEmQueAparece().get(i));
+				else 
+					file.write(-1);
+			}
+				
 			file.seek(0);
 			this.numReg += 1;
 			file.writeInt(this.numReg);
@@ -92,7 +110,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 		}
 	}
 
-	public String getData(int key) {
+	public EntidadePlotKeyWord getData(int key) {
 
 		if (key >= this.numReg)
 			return null;
@@ -101,15 +119,19 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 
 		int pos = this.tamHead + (key * this.tamReg);
 
-		String palavra = null;
+		EntidadePlotKeyWord plotKeyWord = new EntidadePlotKeyWord();
 
 		try {
 
 			System.out.println("Entrou no try do get data. Valor de pos: " + pos);
 			file.seek(pos);
-			palavra = file.readUTF();
+			plotKeyWord.setPalavra(file.readUTF());
 			file.seek(pos + STRING_MAX_TAM);
-		
+			for(int i = 0; i <= 200; i++) {
+				int registro = file.readInt();
+				if(registro != -1) 
+					plotKeyWord.adicionarRegistroEmQuePalavraApareceu(registro);
+			}
 			file.seek(0);
 
 		} catch (IOException e) {
@@ -117,7 +139,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			System.exit(0);
 		}
 
-		return palavra;
+		return plotKeyWord;
 	}
 
 	public void closeFile(String path) {

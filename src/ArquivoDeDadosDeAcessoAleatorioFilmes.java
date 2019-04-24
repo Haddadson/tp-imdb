@@ -15,7 +15,7 @@ public class ArquivoDeDadosDeAcessoAleatorioFilmes {
 	public ArquivoDeDadosDeAcessoAleatorioFilmes() {
 		this.file = null;
 		this.numReg = -1; // número de registro (-1: não há registros)
-		this.tamReg = ((Integer.SIZE / 8) * 10) + ((Long.SIZE / 8) * 4) + (STRING_MAX_TAM * 12) + ((Float.SIZE / 8) * 2);
+		this.tamReg = ((Integer.SIZE / 8) * 11) + ((Long.SIZE / 8) * 4) + (STRING_MAX_TAM * 12) + ((Float.SIZE / 8) * 2);
 		this.tamHead = 4;
 	}
 	
@@ -121,7 +121,8 @@ public class ArquivoDeDadosDeAcessoAleatorioFilmes {
 		      file.writeFloat(a.getImdbScore());
 		      file.writeFloat(a.getAspectRatio());
 		      file.writeInt(a.getMovieFacebookLikes());
-
+		      file.writeInt(this.numReg);
+		      
 			file.seek(0);
 			this.numReg += 1;
 			file.writeInt(this.numReg);
@@ -188,7 +189,8 @@ public class ArquivoDeDadosDeAcessoAleatorioFilmes {
 		      p.setImdbScore(file.readFloat());
 		      p.setAspectRatio(file.readFloat());
 		      p.setMovieFacebookLikes(file.readInt());
-	
+		      p.setNumRegistro(file.readInt());
+		      
 		      file.seek(0);
 			
 		} catch (IOException e) {

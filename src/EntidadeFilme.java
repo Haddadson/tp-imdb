@@ -29,7 +29,8 @@ public class EntidadeFilme {
 	private float ImdbScore;
 	private float AspectRatio;
 	private int MovieFacebookLikes;
-
+	private int numRegistro;
+	
 	public String getColor() {
 		return Color;
 	}
@@ -252,6 +253,14 @@ public class EntidadeFilme {
 
 	public void setMovieFacebookLikes(int movieFacebookLikes) {
 		MovieFacebookLikes = movieFacebookLikes;
+	}
+
+	public int getNumRegistro() {
+		return numRegistro;
+	}
+
+	public void setNumRegistro(int numRegistro) {
+		this.numRegistro = numRegistro;
 	}
 
 }
