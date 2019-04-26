@@ -30,7 +30,7 @@ public class EntidadeFilme {
 	private float AspectRatio;
 	private int MovieFacebookLikes;
 	private int numRegistro;
-	
+
 	public String getColor() {
 		return Color;
 	}

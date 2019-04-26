@@ -11,14 +11,13 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 	private int tamHead;
 	private static final int STRING_MAX_TAM = 100;
 	private int qtdPalavras;
-	private int ultimoReg;
-	
+
 	public ArquivoDeDadosDeAcessoAleatorioIndiceInvertido() {
 		this.file = null;
 		this.numReg = -1; // número de registro (-1: não há registros)
 		this.tamReg = STRING_MAX_TAM + ((Integer.SIZE / 8) * 200);
 		this.tamHead = 4;
-		this.ultimoReg = this.qtdPalavras = 0;
+		this.qtdPalavras = 0;
 	}
 
 	public int getTamReg() {
@@ -28,7 +27,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 	public int getTamHead() {
 		return tamHead;
 	}
-	
+
 	public int getQtdPalavras() {
 		return qtdPalavras;
 	}
@@ -71,6 +70,10 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 		}
 	}
 
+	public int getNumReg() {
+		return numReg;
+	}
+
 	public void openFileReadOnly(String path) {
 		try {
 			file = new RandomAccessFile(new File(path), "r");
@@ -81,10 +84,6 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 		this.setNumReg();
 	}
 
-	public int getNumReg() {
-		return numReg;
-	}
-
 	public void setData(EntidadePlotKeyWord plotKeyWord) {
 		int pos = this.tamHead + (this.numReg * this.tamReg);
 
@@ -93,16 +92,16 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			file.seek(pos);
 			file.writeUTF(plotKeyWord.getPalavra());
 			file.seek(pos + STRING_MAX_TAM);
-			for(int i = 0; i <= 200; i++) {
-				if(i < plotKeyWord.getRegistrosEmQueAparece().size()) {
+			for (int i = 0; i <= 200; i++) {
+				if (i < plotKeyWord.getRegistrosEmQueAparece().size()) {
 					file.writeInt(plotKeyWord.getRegistrosEmQueAparece().get(i));
 					System.out.println("Gravando em = " + plotKeyWord.getRegistrosEmQueAparece().get(i));
 				}
-					
-				else 
+
+				else
 					file.writeInt(-1);
 			}
-				
+
 			file.seek(0);
 			this.numReg += 1;
 			file.writeInt(this.numReg);
@@ -130,9 +129,9 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			file.seek(pos);
 			plotKeyWord.setPalavra(file.readUTF());
 			file.seek(pos + STRING_MAX_TAM);
-			for(int i = 0; i < 200; i++) {
+			for (int i = 0; i < 200; i++) {
 				int registro = file.readInt();
-				if(registro != -1) {
+				if (registro != -1) {
 					plotKeyWord.adicionarRegistroEmQuePalavraApareceu(registro);
 				}
 			}
