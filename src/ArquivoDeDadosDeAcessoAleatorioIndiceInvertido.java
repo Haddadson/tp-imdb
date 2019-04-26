@@ -94,10 +94,13 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			file.writeUTF(plotKeyWord.getPalavra());
 			file.seek(pos + STRING_MAX_TAM);
 			for(int i = 0; i <= 200; i++) {
-				if(i < plotKeyWord.getRegistrosEmQueAparece().size()) 
-					file.write(plotKeyWord.getRegistrosEmQueAparece().get(i));
+				if(i < plotKeyWord.getRegistrosEmQueAparece().size()) {
+					file.writeInt(plotKeyWord.getRegistrosEmQueAparece().get(i));
+					System.out.println("Gravando em = " + plotKeyWord.getRegistrosEmQueAparece().get(i));
+				}
+					
 				else 
-					file.write(-1);
+					file.writeInt(-1);
 			}
 				
 			file.seek(0);
@@ -127,10 +130,11 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			file.seek(pos);
 			plotKeyWord.setPalavra(file.readUTF());
 			file.seek(pos + STRING_MAX_TAM);
-			for(int i = 0; i <= 200; i++) {
+			for(int i = 0; i < 200; i++) {
 				int registro = file.readInt();
-				if(registro != -1) 
+				if(registro != -1) {
 					plotKeyWord.adicionarRegistroEmQuePalavraApareceu(registro);
+				}
 			}
 			file.seek(0);
 

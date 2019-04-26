@@ -157,10 +157,10 @@ public class Program {
 		ArrayList<EntidadePlotKeyWord> listaPalavras = new ArrayList<EntidadePlotKeyWord>();
 		EntidadePlotKeyWord plotKeyWord;
 		for (EntidadeFilme filme : listaFilmes) {
-			String[] plotKeyWordsString = filme.getPlotKeywords().split(Pattern.quote("|"));
+			String[] plotKeyWordsString = filme.getPlotKeywords().split("[( )|(\\Q|\\E)]+");
 			List<String> plotKeyWords = Arrays.asList(plotKeyWordsString);
 			for (String palavra : plotKeyWords) {
-				if(!stopWords.contains(palavra)) {
+				if(palavra != null && !palavra.isEmpty() && !stopWords.contains(palavra)) {
 					if(!contemPalavra(listaPalavras, palavra)) {
 						plotKeyWord = new EntidadePlotKeyWord();
 						plotKeyWord.setPalavra(palavra);
@@ -188,7 +188,7 @@ public class Program {
 	}
 	
 	private static ArrayList<EntidadePlotKeyWord> LerDadosIndiceInvertido(ArquivoDeDadosDeAcessoAleatorioIndiceInvertido arqReader) {
-		int i = 0;
+		int i = 1;
 		EntidadePlotKeyWord plotKeyWord;
 		ArrayList<EntidadePlotKeyWord> indiceInvertido = new ArrayList<>();
 		do {
