@@ -1,11 +1,20 @@
 import java.util.ArrayList;
 
 public class EntidadePlotKeyWord {
+	private int id;
 	private String palavra;
 	private ArrayList<Integer> registrosEmQueAparece;
 
 	public EntidadePlotKeyWord() {
 		registrosEmQueAparece = new ArrayList<Integer>();
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getPalavra() {

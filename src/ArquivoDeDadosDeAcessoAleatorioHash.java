@@ -2,8 +2,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.LinkedList;
 
-public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
+public class ArquivoDeDadosDeAcessoAleatorioHash {
 
 	private RandomAccessFile file;
 	private int numReg;
@@ -11,10 +12,10 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 	private int tamHead;
 	private static final int STRING_MAX_TAM = 100;
 
-	public ArquivoDeDadosDeAcessoAleatorioIndiceInvertido() {
+	public ArquivoDeDadosDeAcessoAleatorioHash() {
 		this.file = null;
 		this.numReg = -1; // número de registro (-1: não há registros)
-		this.tamReg = (Integer.SIZE / 8) + STRING_MAX_TAM + ((Integer.SIZE / 8) * 200);
+		this.tamReg = (STRING_MAX_TAM * 150) + ((Integer.SIZE / 8) * 150) + (Integer.SIZE / 8);
 		this.tamHead = 4;
 	}
 
@@ -74,23 +75,24 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 		this.setNumReg();
 	}
 
-	public void setData(EntidadePlotKeyWord plotKeyWord) {
+	public void setData(int hashCode, LinkedList<EntidadePalavrasHash> palavras) {
+		this.numReg = hashCode;
 		int pos = this.tamHead + (this.numReg * this.tamReg);
-
 		// calcula ponteiro para a primeira posição vazia do arquivo
 		try {
 			file.seek(pos);
-			file.writeInt(this.numReg);
-			file.writeUTF(plotKeyWord.getPalavra());
-			file.seek(pos + STRING_MAX_TAM);
-			for (int i = 0; i <= 200; i++) {
-				if (i < plotKeyWord.getRegistrosEmQueAparece().size()) {
-					file.writeInt(plotKeyWord.getRegistrosEmQueAparece().get(i));
-					System.out.println("Gravando em = " + plotKeyWord.getRegistrosEmQueAparece().get(i));
+			file.writeInt(hashCode);
+			for (int i = 0; i <= 150; i++) {
+				if (i < palavras.size()) {
+					file.writeInt(palavras.get(i).getCodigo());
+					file.writeUTF(palavras.get(i).getPalavra());
+					file.seek(pos + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));
+					System.out.println("Gravando = " + palavras.get(i));
+					System.out.println("Hash code = " + hashCode);
 				}
 
 				else
-					file.writeInt(-1);
+					file.writeUTF("");
 			}
 
 			file.seek(0);
@@ -103,29 +105,29 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 		}
 	}
 
-	public EntidadePlotKeyWord getData(int key) {
+	public EntidadeItemHash getData(int key) {
 
-		if (key >= this.numReg)
+		if (key > this.numReg)
 			return null;
 
 		System.out.println("get data");
 
 		int pos = this.tamHead + (key * this.tamReg);
 
-		EntidadePlotKeyWord plotKeyWord = new EntidadePlotKeyWord();
+		EntidadeItemHash itemHash = new EntidadeItemHash();
 
 		try {
 
 			System.out.println("Entrou no try do get data. Valor de pos: " + pos);
 			file.seek(pos);
-			plotKeyWord.setId(file.readInt());
-			plotKeyWord.setPalavra(file.readUTF());
-			file.seek(pos + STRING_MAX_TAM);
-			for (int i = 0; i < 200; i++) {
-				int registro = file.readInt();
-				if (registro != -1) {
-					plotKeyWord.adicionarRegistroEmQuePalavraApareceu(registro);
+			itemHash.setHashCode(file.readInt());
+			for (int i = 0; i < 150; i++) {
+				int codigo = file.readInt();
+				String palavra = file.readUTF();
+				if (!palavra.isEmpty()) {
+					itemHash.adicionarPalavraEmLista(new EntidadePalavrasHash(codigo, palavra));
 				}
+				file.seek(pos + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));
 			}
 			file.seek(0);
 
@@ -134,7 +136,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			System.exit(0);
 		}
 
-		return plotKeyWord;
+		return itemHash;
 	}
 
 	public void closeFile(String path) {

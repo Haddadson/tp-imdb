@@ -13,7 +13,7 @@ public class Program {
 		FileReader arq;
 		BufferedReader leitor;
 		ArrayList<EntidadeFilme> listaFilmes;
-		// ToDo: Incluir busca por hash e refatorar codigo
+		// ToDo: refatorar codigo
 		try {
 			ArquivoDeDadosDeAcessoAleatorioFilmes arqReader = new ArquivoDeDadosDeAcessoAleatorioFilmes();
 			arq = new FileReader(Constantes.CAMINHO_DADOS_FILMES);
@@ -23,6 +23,7 @@ public class Program {
 			int iteracao = 0;
 
 			if (arqReader.getNumReg() == 0) {
+				//Todo: Remover flag de iteracao <= 40
 				while (linha != null && !linha.isEmpty() && iteracao <= 40) { // Flag temporário para testes
 					linha = leitor.readLine();
 					if (linha != null && !linha.isEmpty()) {
@@ -37,9 +38,6 @@ public class Program {
 
 			listaFilmes = LerDadosFilmesImdb(arqReader);
 
-			leitor.close();
-			arqReader.closeFile(Constantes.CAMINHO_DADOS_FILMES_BIN);
-
 			ArquivoDeDadosDeAcessoAleatorioIndiceInvertido arqReaderIndice = new ArquivoDeDadosDeAcessoAleatorioIndiceInvertido();
 			arqReaderIndice.openFile(Constantes.CAMINHO_INDICE_INVERTIDO);
 
@@ -49,26 +47,62 @@ public class Program {
 				ArrayList<EntidadePlotKeyWord> palavrasIndiceInvertido = ObterPalavrasIndiceInvertido(listaFilmes,
 						stopWords);
 
-				arqReaderIndice.setQtdPalavras(palavrasIndiceInvertido.size());
-
 				for (EntidadePlotKeyWord plotKeyWord : palavrasIndiceInvertido) {
 					arqReaderIndice.setData(plotKeyWord);
 				}
 			}
 
 			ArrayList<EntidadePlotKeyWord> listaPalavrasIndiceInvertido = LerDadosIndiceInvertido(arqReaderIndice);
-			//ToDo: Gerar tabela hash em memoria e gravá-la em arquivo binario
-			
+		
+
+			ArquivoDeDadosDeAcessoAleatorioHash arqReaderHash = new ArquivoDeDadosDeAcessoAleatorioHash();
+			arqReaderHash.openFile(Constantes.CAMINHO_HASH);
+
+			TabelaHash tabelaHash = new TabelaHash(listaPalavrasIndiceInvertido.size());
+			if (arqReaderHash.getNumReg() == 0) {
+
+				for (EntidadePlotKeyWord plot : listaPalavrasIndiceInvertido) {
+					tabelaHash.add(new EntidadePalavrasHash(plot.getId(), plot.getPalavra()));
+				}
+
+				for (int i = 0; i < tabelaHash.getSIZE(); i++) {
+					if (tabelaHash.getHashtable()[i] != null && !tabelaHash.getHashtable()[i].isEmpty()) {
+						arqReaderHash.setData(i, tabelaHash.getHashtable()[i]);
+					}
+				}
+			}
+			String palavra = "dwarf"; //Todo: Incluir leitura de palavra para busca
+						
+			EntidadePalavrasHash item = arqReaderHash.getData(tabelaHash.hash(palavra))
+													 .getPalavras().stream()
+													 .filter(o -> o.getPalavra().equals(palavra))
+													 .findFirst().orElse(null);
+			if(item != null) {
+				int codigo = item.getCodigo();
+				EntidadePlotKeyWord plotKey = arqReaderIndice.getData(codigo);
+				ArrayList<EntidadeFilme> listaFilmesEncontrados = new ArrayList<EntidadeFilme>();
+				for(int key : plotKey.getRegistrosEmQueAparece()) {
+					EntidadeFilme filmeEncontrado = arqReader.getData(key);
+					if(filmeEncontrado != null)
+						listaFilmesEncontrados.add(filmeEncontrado); 	
+				}
+				
+				if(!listaFilmesEncontrados.isEmpty()) {
+					for(EntidadeFilme filmeBuscado : listaFilmesEncontrados) {
+						System.out.println("Titulo: " + filmeBuscado.getMovieTitle());
+						System.out.println("Diretor: " + filmeBuscado.getDirectorName());
+						System.out.println("Ano do filme: " + filmeBuscado.getTitleYear());
+						System.out.println("\n---------------------------\n");
+					}
+				}
+			}
+
+					
+			leitor.close();
+			arqReader.closeFile(Constantes.CAMINHO_DADOS_FILMES_BIN);
 			arqReaderIndice.closeFile(Constantes.CAMINHO_INDICE_INVERTIDO);
-
-			for (EntidadeFilme filmeImdb : listaFilmes) {
-				System.out.println(filmeImdb.getMovieTitle());
-			}
-
-			for (EntidadePlotKeyWord plot : listaPalavrasIndiceInvertido) {
-				System.out.println(plot.getPalavra());
-			}
-
+			arqReaderHash.closeFile(Constantes.CAMINHO_HASH);
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
