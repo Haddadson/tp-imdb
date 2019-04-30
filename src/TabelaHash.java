@@ -4,7 +4,7 @@ import java.util.LinkedList;
 public class TabelaHash {
      
 	public TabelaHash() {
-		SIZE = 6000;
+		SIZE = 8000;
 		hashtable = (LinkedList<EntidadePalavrasHash>[])new LinkedList[SIZE];
 	}
 	

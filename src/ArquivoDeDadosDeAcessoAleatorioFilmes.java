@@ -127,9 +127,9 @@ public class ArquivoDeDadosDeAcessoAleatorioFilmes {
 			file.seek(0);
 			this.numReg += 1;
 			file.writeInt(this.numReg);
-			System.out.println("Gravou em: " + (this.tamHead + (this.tamReg * this.numReg)));
+			//System.out.println("Gravou em: " + (this.tamHead + (this.tamReg * this.numReg)));
 		} catch (IOException e) {
-			System.out.println("Error!");
+			System.out.println("Error - Escrita Filmes");
 			System.exit(0);
 		}
 	}
@@ -139,7 +139,7 @@ public class ArquivoDeDadosDeAcessoAleatorioFilmes {
 		if (key >= this.numReg)
 			return null;
 
-		System.out.println("get data");
+		//System.out.println("get data");
 
 		int pos = this.tamHead + (key * this.tamReg);
 
@@ -147,7 +147,7 @@ public class ArquivoDeDadosDeAcessoAleatorioFilmes {
 
 		try {
 
-			System.out.println("Entrou no try do get data. Valor de pos: " + pos);
+			//System.out.println("Entrou no try do get data. Valor de pos: " + pos);
 			file.seek(pos);
 
 			p.setColor(file.readUTF());
@@ -196,7 +196,7 @@ public class ArquivoDeDadosDeAcessoAleatorioFilmes {
 			file.seek(0);
 
 		} catch (IOException e) {
-			System.out.println("Error");
+			System.out.println("Error - Leitura Filmes");
 			System.exit(0);
 		}
 

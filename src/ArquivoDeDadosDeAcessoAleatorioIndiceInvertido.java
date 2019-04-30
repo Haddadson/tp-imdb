@@ -86,7 +86,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			for (int i = 0; i <= 200; i++) {
 				if (i < plotKeyWord.getRegistrosEmQueAparece().size()) {
 					file.writeInt(plotKeyWord.getRegistrosEmQueAparece().get(i));
-					System.out.println("Gravando em = " + plotKeyWord.getRegistrosEmQueAparece().get(i));
+					//System.out.println("Gravando em = " + plotKeyWord.getRegistrosEmQueAparece().get(i));
 				}
 
 				else
@@ -96,9 +96,9 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			file.seek(0);
 			this.numReg += 1;
 			file.writeInt(this.numReg);
-			System.out.println("Gravou em: " + (this.tamHead + (this.tamReg * this.numReg)));
+			//System.out.println("Gravou em: " + (this.tamHead + (this.tamReg * this.numReg)));
 		} catch (IOException e) {
-			System.out.println("Error!");
+			System.out.println("Error - Escrita Indice Invertido");
 			System.exit(0);
 		}
 	}
@@ -108,7 +108,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 		if (key >= this.numReg)
 			return null;
 
-		System.out.println("get data");
+		//System.out.println("get data");
 
 		int pos = this.tamHead + (key * this.tamReg);
 
@@ -116,7 +116,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 
 		try {
 
-			System.out.println("Entrou no try do get data. Valor de pos: " + pos);
+			//System.out.println("Entrou no try do get data. Valor de pos: " + pos);
 			file.seek(pos);
 			plotKeyWord.setId(file.readInt());
 			plotKeyWord.setPalavra(file.readUTF());
@@ -130,7 +130,7 @@ public class ArquivoDeDadosDeAcessoAleatorioIndiceInvertido {
 			file.seek(0);
 
 		} catch (IOException e) {
-			System.out.println("Error");
+			System.out.println("Error - Leitura Indice Invertido");
 			System.exit(0);
 		}
 

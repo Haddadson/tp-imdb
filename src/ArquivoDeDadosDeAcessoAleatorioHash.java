@@ -15,7 +15,7 @@ public class ArquivoDeDadosDeAcessoAleatorioHash {
 	public ArquivoDeDadosDeAcessoAleatorioHash() {
 		this.file = null;
 		this.numReg = -1; // número de registro (-1: não há registros)
-		this.tamReg = (STRING_MAX_TAM * 150) + ((Integer.SIZE / 8) * 150) + (Integer.SIZE / 8);
+		this.tamReg = (STRING_MAX_TAM * 100) + ((Integer.SIZE / 8) * 100) + (Integer.SIZE / 8);
 		this.tamHead = 4;
 	}
 
@@ -82,25 +82,30 @@ public class ArquivoDeDadosDeAcessoAleatorioHash {
 		try {
 			file.seek(pos);
 			file.writeInt(hashCode);
-			for (int i = 0; i <= 150; i++) {
+			for (int i = 0; i <= 100; i++) {
 				if (i < palavras.size()) {
 					file.writeInt(palavras.get(i).getCodigo());
+					file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * (i-1)) + ((Integer.SIZE / 8) * i));
 					file.writeUTF(palavras.get(i).getPalavra());
-					file.seek(pos + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));
-					System.out.println("Gravando = " + palavras.get(i));
+					
+					System.out.println("Gravando = " + palavras.get(i).getPalavra());
 					System.out.println("Hash code = " + hashCode);
 				}
 
-				else
-					file.writeUTF("");
+				else {
+					file.writeInt(-1);
+					file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * (i-1)) + ((Integer.SIZE / 8) * i));
+					file.writeUTF("-1");
+				}
+				file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));	
 			}
 
 			file.seek(0);
 			this.numReg += 1;
 			file.writeInt(this.numReg);
-			System.out.println("Gravou em: " + (this.tamHead + (this.tamReg * this.numReg)));
+			//System.out.println("Gravou em: " + (this.tamHead + (this.tamReg * this.numReg)));
 		} catch (IOException e) {
-			System.out.println("Error!");
+			System.out.println("Error - Escrita Hash");
 			System.exit(0);
 		}
 	}
@@ -110,7 +115,7 @@ public class ArquivoDeDadosDeAcessoAleatorioHash {
 		if (key > this.numReg)
 			return null;
 
-		System.out.println("get data");
+		//System.out.println("get data");
 
 		int pos = this.tamHead + (key * this.tamReg);
 
@@ -118,21 +123,23 @@ public class ArquivoDeDadosDeAcessoAleatorioHash {
 
 		try {
 
-			System.out.println("Entrou no try do get data. Valor de pos: " + pos);
+			//System.out.println("Entrou no try do get data. Valor de pos: " + pos);
 			file.seek(pos);
 			itemHash.setHashCode(file.readInt());
-			for (int i = 0; i < 150; i++) {
+			for (int i = 0; i < 100; i++) {
 				int codigo = file.readInt();
+				file.seek(pos + (Integer.SIZE / 8) + ((Integer.SIZE / 8) * i) + (STRING_MAX_TAM * (i-1)));
 				String palavra = file.readUTF();
-				if (!palavra.isEmpty()) {
+				file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));
+				if (!palavra.isEmpty() && !palavra.equals("-1")) {
 					itemHash.adicionarPalavraEmLista(new EntidadePalavrasHash(codigo, palavra));
 				}
-				file.seek(pos + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));
+				
 			}
 			file.seek(0);
 
 		} catch (IOException e) {
-			System.out.println("Error");
+			System.out.println("Error - Leitura Hash");
 			System.exit(0);
 		}
 
