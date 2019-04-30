@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 public class Program {
 
@@ -31,7 +30,6 @@ public class Program {
 			String linha = leitor.readLine();
 
 			if (arqReader.getNumReg() == 0) {
-				// TODO: Remover flag de iteracao <= 40
 				System.out.println("Adicionando filmes...");
 				while (linha != null && !linha.isEmpty()) {
 					linha = leitor.readLine();
@@ -123,6 +121,7 @@ public class Program {
 				continuar = scan.nextLine();
 			} while (continuar.equalsIgnoreCase("s"));
 
+			scan.close();
 			leitor.close();
 			arqReader.closeFile(Constantes.CAMINHO_DADOS_FILMES_BIN);
 			arqReaderIndice.closeFile(Constantes.CAMINHO_INDICE_INVERTIDO);

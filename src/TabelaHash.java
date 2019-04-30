@@ -1,4 +1,3 @@
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class TabelaHash {
@@ -41,39 +40,7 @@ public class TabelaHash {
         LinkedList<EntidadePalavrasHash> bucket = hashtable[hash];
         bucket.add(value);
     }
-     
-    public boolean contains(String value) {
-        int hash = hash(value);
-        LinkedList<EntidadePalavrasHash> bucket = hashtable[hash];
-        if (bucket != null) {
-            Iterator<EntidadePalavrasHash> it = bucket.iterator();
-            while (it.hasNext()) {
-                if (it.next().equals(value)) {
-                    return true;
-                }
-            }
-        }
-        // value not found
-        return false;
-    }
- 
-      // exactly the same as contains() just additionally remove value
-    public boolean remove(String value) {
-        int hash = hash(value);
-        LinkedList<EntidadePalavrasHash> bucket = hashtable[hash];
-        if (bucket != null) {
-            Iterator<EntidadePalavrasHash> it = bucket.iterator();
-            while (it.hasNext()) {
-                if (it.next().equals(value)) {
-                    it.remove();
-                    return true;
-                }
-            }
-        }
-        // value not found
-        return false;
-    }
-     
+
     public int hash(String value) {
         int hash = value.hashCode();
         return hash % SIZE * (hash >= 0 ? 1 : -1);
