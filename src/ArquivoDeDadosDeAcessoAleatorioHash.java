@@ -82,19 +82,19 @@ public class ArquivoDeDadosDeAcessoAleatorioHash {
 		try {
 			file.seek(pos);
 			file.writeInt(hashCode);
-			for (int i = 0; i <= 100; i++) {
-				if (i < palavras.size()) {
-					file.writeInt(palavras.get(i).getCodigo());
-					file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * (i-1)) + ((Integer.SIZE / 8) * i));
-					file.writeUTF(palavras.get(i).getPalavra());
+			for (int i = 1; i <= 100; i++) {
+				if (i-1 < palavras.size()) {
+					file.writeInt(palavras.get(i-1).getId());
+					file.writeUTF(palavras.get(i-1).getPalavra());
 					
-					System.out.println("Gravando = " + palavras.get(i).getPalavra());
-					System.out.println("Hash code = " + hashCode);
+					//System.out.println("Gravando = " + palavras.get(i-1).getPalavra());
+					//System.out.println("ID palavra = " + palavras.get(i-1).getId());
+					//System.out.println("Hash code = " + hashCode);
+					
 				}
 
 				else {
 					file.writeInt(-1);
-					file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * (i-1)) + ((Integer.SIZE / 8) * i));
 					file.writeUTF("-1");
 				}
 				file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));	
@@ -126,13 +126,13 @@ public class ArquivoDeDadosDeAcessoAleatorioHash {
 			//System.out.println("Entrou no try do get data. Valor de pos: " + pos);
 			file.seek(pos);
 			itemHash.setHashCode(file.readInt());
-			for (int i = 0; i < 100; i++) {
-				int codigo = file.readInt();
+			for (int i = 1; i < 100; i++) {
+				int id = file.readInt();
 				file.seek(pos + (Integer.SIZE / 8) + ((Integer.SIZE / 8) * i) + (STRING_MAX_TAM * (i-1)));
 				String palavra = file.readUTF();
 				file.seek(pos + (Integer.SIZE / 8) + (STRING_MAX_TAM * i) + ((Integer.SIZE / 8) * i));
 				if (!palavra.isEmpty() && !palavra.equals("-1")) {
-					itemHash.adicionarPalavraEmLista(new EntidadePalavrasHash(codigo, palavra));
+					itemHash.adicionarPalavraEmLista(new EntidadePalavrasHash(id, palavra));
 				}
 				
 			}

@@ -1,19 +1,19 @@
 
 public class EntidadePalavrasHash {
-	private int codigo;
+	private int id;
 	private String palavra;
 
-	public EntidadePalavrasHash(int codigo, String palavra) {
-		this.codigo = codigo;
+	public EntidadePalavrasHash(int id, String palavra) {
+		this.id = id;
 		this.palavra = palavra;
 	}
 
-	public int getCodigo() {
-		return codigo;
+	public int getId() {
+		return id;
 	}
 
-	public void setCodigo(int codigo) {
-		this.codigo = codigo;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getPalavra() {

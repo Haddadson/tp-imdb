@@ -13,7 +13,7 @@ public class Program {
 		FileReader arq;
 		BufferedReader leitor;
 		ArrayList<EntidadeFilme> listaFilmes;
-		// ToDo: refatorar codigo
+		// TODO: refatorar codigo
 		try {
 			ArquivoDeDadosDeAcessoAleatorioFilmes arqReader = new ArquivoDeDadosDeAcessoAleatorioFilmes();
 			ArquivoDeDadosDeAcessoAleatorioIndiceInvertido arqReaderIndice = new ArquivoDeDadosDeAcessoAleatorioIndiceInvertido();
@@ -29,7 +29,7 @@ public class Program {
 			int iteracao = 0;
 
 			if (arqReader.getNumReg() == 0) {
-				// Todo: Remover flag de iteracao <= 40
+				// TODO: Remover flag de iteracao <= 40
 				while (linha != null && !linha.isEmpty() && iteracao <= 40) { // Flag temporário para testes
 					linha = leitor.readLine();
 					if (linha != null && !linha.isEmpty()) {
@@ -71,15 +71,14 @@ public class Program {
 				}
 			}
 
-			String palavra = "battle"; // Todo: Incluir leitura de palavra para busca
+			String palavra = "alien"; // TODO: Incluir leitura de palavra para busca
 			
 			EntidadeItemHash item = arqReaderHash.getData(tabelaHash.hash(palavra));
 			if (item != null && !item.getPalavras().isEmpty()) {
-				//TODO: corrigir
 				EntidadePalavrasHash palavraHash = item.getPalavras().stream()
 						.filter(o -> o.getPalavra().equals(palavra)).findFirst().orElse(null);
 				if (palavraHash != null) {
-					int codigo = palavraHash.getCodigo();
+					int codigo = palavraHash.getId();
 					EntidadePlotKeyWord plotKey = arqReaderIndice.getData(codigo);
 					ArrayList<EntidadeFilme> listaFilmesEncontrados = new ArrayList<EntidadeFilme>();
 					for (int key : plotKey.getRegistrosEmQueAparece()) {
