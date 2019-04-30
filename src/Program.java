@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Program {
@@ -13,6 +14,8 @@ public class Program {
 		FileReader arq;
 		BufferedReader leitor;
 		ArrayList<EntidadeFilme> listaFilmes;
+		Scanner scan = new Scanner(System.in);
+
 		// TODO: refatorar codigo
 		try {
 			ArquivoDeDadosDeAcessoAleatorioFilmes arqReader = new ArquivoDeDadosDeAcessoAleatorioFilmes();
@@ -26,18 +29,17 @@ public class Program {
 
 			leitor = new BufferedReader(arq);
 			String linha = leitor.readLine();
-			int iteracao = 0;
 
 			if (arqReader.getNumReg() == 0) {
 				// TODO: Remover flag de iteracao <= 40
-				while (linha != null && !linha.isEmpty() && iteracao <= 40) { // Flag temporário para testes
+				System.out.println("Adicionando filmes...");
+				while (linha != null && !linha.isEmpty()) {
 					linha = leitor.readLine();
 					if (linha != null && !linha.isEmpty()) {
 						String[] propriedadesObjeto = linha.split(",");
 						EntidadeFilme filme = mapearObjeto(propriedadesObjeto);
 						if (filme != null)
 							arqReader.setData(filme);
-						iteracao++;
 					}
 				}
 			}
@@ -45,6 +47,7 @@ public class Program {
 			listaFilmes = LerDadosFilmesImdb(arqReader);
 
 			if (arqReaderIndice.getNumReg() == 0) {
+				System.out.println("Gerando indice invertido...");
 				ArrayList<String> stopWords = ObterListaStopWords();
 
 				ArrayList<EntidadePlotKeyWord> palavrasIndiceInvertido = ObterPalavrasIndiceInvertido(listaFilmes,
@@ -57,9 +60,9 @@ public class Program {
 
 			ArrayList<EntidadePlotKeyWord> listaPalavrasIndiceInvertido = LerDadosIndiceInvertido(arqReaderIndice);
 			TabelaHash tabelaHash = new TabelaHash(listaPalavrasIndiceInvertido.size());
-			
-			if (arqReaderHash.getNumReg() == 0) {
 
+			if (arqReaderHash.getNumReg() == 0) {
+				System.out.println("Gerando tabela hash...");
 				for (EntidadePlotKeyWord plot : listaPalavrasIndiceInvertido) {
 					tabelaHash.add(new EntidadePalavrasHash(plot.getId(), plot.getPalavra()));
 				}
@@ -71,37 +74,54 @@ public class Program {
 				}
 			}
 
-			String palavra = "alien"; // TODO: Incluir leitura de palavra para busca
-			
-			EntidadeItemHash item = arqReaderHash.getData(tabelaHash.hash(palavra));
-			if (item != null && !item.getPalavras().isEmpty()) {
-				EntidadePalavrasHash palavraHash = item.getPalavras().stream()
-						.filter(o -> o.getPalavra().equals(palavra)).findFirst().orElse(null);
-				if (palavraHash != null) {
-					int codigo = palavraHash.getId();
-					EntidadePlotKeyWord plotKey = arqReaderIndice.getData(codigo);
-					ArrayList<EntidadeFilme> listaFilmesEncontrados = new ArrayList<EntidadeFilme>();
-					for (int key : plotKey.getRegistrosEmQueAparece()) {
-						EntidadeFilme filmeEncontrado = arqReader.getData(key);
-						if (filmeEncontrado != null)
-							listaFilmesEncontrados.add(filmeEncontrado);
-					}
+			String[] arrayPalavrasPesquisa;
+			String continuar;
+			do {
+				System.out.println("Digite palavras para encontrar filmes relacionados (separar por |): ");
+				arrayPalavrasPesquisa = scan.nextLine().split(Constantes.REGEX_PLOT_KEYWORDS);
+				List<String> listaPalavrasPesquisa = Arrays.asList(arrayPalavrasPesquisa);
+				for (String palavraPesquisa : listaPalavrasPesquisa) {
+					EntidadeItemHash item = arqReaderHash.getData(tabelaHash.hash(palavraPesquisa));
+					if (item != null && !item.getPalavras().isEmpty()) {
+						final String palavraPesquisaBuscaStream = palavraPesquisa;
+						EntidadePalavrasHash palavraHash = item.getPalavras().stream()
+								.filter(o -> o.getPalavra().equals(palavraPesquisaBuscaStream)).findFirst()
+								.orElse(null);
+						if (palavraHash != null) {
+							int codigo = palavraHash.getId();
+							EntidadePlotKeyWord plotKey = arqReaderIndice.getData(codigo);
+							ArrayList<EntidadeFilme> listaFilmesEncontrados = new ArrayList<EntidadeFilme>();
+							for (int key : plotKey.getRegistrosEmQueAparece()) {
+								EntidadeFilme filmeEncontrado = arqReader.getData(key);
+								if (filmeEncontrado != null)
+									listaFilmesEncontrados.add(filmeEncontrado);
+							}
 
-					if (!listaFilmesEncontrados.isEmpty()) {
-						System.out.println("\n---------------------------\n");
-						for (EntidadeFilme filmeBuscado : listaFilmesEncontrados) {
-							System.out.println("Titulo: " + filmeBuscado.getMovieTitle());
-							System.out.println("Diretor: " + filmeBuscado.getDirectorName());
-							System.out.println("Ano do filme: " + filmeBuscado.getTitleYear());
+							if (!listaFilmesEncontrados.isEmpty()) {
+								for (EntidadeFilme filmeBuscado : listaFilmesEncontrados) {
+									System.out.println("\n---------------------------\n");
+									System.out.println("Titulo: " + filmeBuscado.getMovieTitle());
+									System.out.println("Diretor: " + filmeBuscado.getDirectorName());
+									System.out.println("Ano do filme: " + filmeBuscado.getTitleYear());
+									System.out.println("Plot KeyWords: " + filmeBuscado.getPlotKeywords());
+									System.out.println("\n---------------------------\n");
+								}
+							}
+						} else {
+							System.out.println("\n---------------------------\n");
+							System.out.println("Nenhum filme encontrado");
 							System.out.println("\n---------------------------\n");
 						}
+					} else {
+						System.out.println("\n---------------------------\n");
+						System.out.println("Nenhum filme encontrado");
+						System.out.println("\n---------------------------\n");
 					}
-				} else {
-					System.out.println("Nenhum filme encontrado");
 				}
-			} else {
-				System.out.println("Nenhum filme encontrado");
-			}
+
+				System.out.println("Deseja continuar? (s/n)");
+				continuar = scan.nextLine();
+			} while (continuar.equalsIgnoreCase("s"));
 
 			leitor.close();
 			arqReader.closeFile(Constantes.CAMINHO_DADOS_FILMES_BIN);
@@ -111,7 +131,7 @@ public class Program {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-
+		System.out.println("Obrigado por usar o sistema! Encerrando...");
 	}
 
 	private static EntidadeFilme mapearObjeto(String[] propriedadesObjeto) {
@@ -151,10 +171,12 @@ public class Program {
 		}
 		return filme;
 	}
+	
 
 	private static int validarPropriedadeInteiroNulaOuVazia(String prop) {
 		return (prop != null && !prop.isEmpty()) ? Integer.parseInt(prop) : -1;
 	}
+	
 
 	private static float validarPropriedadeFloatNulaOuVazia(String prop) {
 		return (prop != null && !prop.isEmpty()) ? Float.parseFloat(prop) : -1;
@@ -177,6 +199,7 @@ public class Program {
 
 		return listaFilmes;
 	}
+	
 
 	private static ArrayList<String> ObterListaStopWords() throws IOException {
 		ArrayList<String> resultado = new ArrayList<String>();
