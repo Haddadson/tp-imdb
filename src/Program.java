@@ -76,7 +76,7 @@ public class Program {
 			String continuar;
 			do {
 				System.out.println("Digite palavras para encontrar filmes relacionados (separar por |): ");
-				arrayPalavrasPesquisa = scan.nextLine().split(Constantes.REGEX_PLOT_KEYWORDS);
+				arrayPalavrasPesquisa = scan.nextLine().toLowerCase().split(Constantes.REGEX_PLOT_KEYWORDS);
 				List<String> listaPalavrasPesquisa = Arrays.asList(arrayPalavrasPesquisa);
 				for (String palavraPesquisa : listaPalavrasPesquisa) {
 					EntidadeItemHash item = arqReaderHash.getData(tabelaHash.hash(palavraPesquisa));
