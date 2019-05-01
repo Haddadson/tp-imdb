@@ -79,6 +79,8 @@ public class Program {
 				arrayPalavrasPesquisa = scan.nextLine().toLowerCase().split(Constantes.REGEX_PLOT_KEYWORDS);
 				List<String> listaPalavrasPesquisa = Arrays.asList(arrayPalavrasPesquisa);
 				for (String palavraPesquisa : listaPalavrasPesquisa) {
+					System.out.println("\n**********************************\n");
+					System.out.println("Buscando filmes com palavra: " + palavraPesquisa);
 					EntidadeItemHash item = arqReaderHash.getData(tabelaHash.hash(palavraPesquisa));
 					if (item != null && !item.getPalavras().isEmpty()) {
 						final String palavraPesquisaBuscaStream = palavraPesquisa;
@@ -102,19 +104,17 @@ public class Program {
 									System.out.println("Diretor: " + filmeBuscado.getDirectorName());
 									System.out.println("Ano do filme: " + filmeBuscado.getTitleYear());
 									System.out.println("Plot KeyWords: " + filmeBuscado.getPlotKeywords());
-									System.out.println("\n---------------------------\n");
 								}
 							}
 						} else {
 							System.out.println("\n---------------------------\n");
 							System.out.println("Nenhum filme encontrado");
-							System.out.println("\n---------------------------\n");
 						}
 					} else {
 						System.out.println("\n---------------------------\n");
 						System.out.println("Nenhum filme encontrado");
-						System.out.println("\n---------------------------\n");
 					}
+					System.out.println("\n**********************************\n");
 				}
 
 				System.out.println("Deseja continuar? (s/n)");
